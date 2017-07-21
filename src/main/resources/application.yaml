@@ -11,5 +11,15 @@ spring:
     hibernate:
       ddl-auto: update
       dialect: org.hibernate.dialect.PostgreSQL9Dialect
-#    show-sql: true
+
+github:
+  client:
+    client-id: 0d7f153948cdc29db971
+    client-secret: fb41f7702a45e82733d6154fb2366226d4f6d596
+    access-token-uri: https://github.com/login/oauth/access_token
+    user-authorization-uri: https://github.com/login/oauth/authorize
+    client-authentication-scheme: form
+  resource:
+    user-info-uri: https://api.github.com/user
+
 

@@ -4,7 +4,11 @@ package com.sorsix.eventscheduler.api;
 import com.sorsix.eventscheduler.domain.User;
 import com.sorsix.eventscheduler.service.UserService;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping(value = "/api/public")
@@ -16,9 +20,8 @@ public class UserPublicController {
         this.userService = userService;
     }
 
-    @PostMapping(value = "/register")
+    @PostMapping(value = "/register", consumes = MediaType.APPLICATION_JSON_VALUE)
     public HttpStatus createUser(@RequestBody User user) {
-        System.out.println("=============USER:   " + user);
         if (userService.createUser(user) != null) {
             return HttpStatus.OK;
         } else {
@@ -27,11 +30,19 @@ public class UserPublicController {
     }
 
     @GetMapping(value = "/duplicate/{username}")
-    public String checkForDuplicateUsername(@PathVariable String username) {
+    public Map<String, String> checkForDuplicateUsername(@PathVariable String username) {
+        Map<String, String> json = new HashMap<>();
         if (userService.checkForDuplicateUsername(username)) {
-            return null;
+            json.put("username", null);
+            return json;
         } else {
-            return username;
+            json.put("username",username);
+            return json;
         }
     }
+
+    /*@PostMapping(value = "/login", produces = MediaType.APPLICATION_JSON_VALUE)
+    public User loginUser(@RequestBody User user) {
+        return userService.findByUserName(user.getUsername());
+    }*/
 }

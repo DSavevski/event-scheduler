@@ -11,11 +11,16 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.security.Principal;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 /**
  * Created by Dragan on 7/18/17.
  */
+
 @RestController
-@RequestMapping(value="/api")
+@RequestMapping(value = "/api")
 public class UserController {
 
     private UserRepository userRepository;
@@ -26,12 +31,14 @@ public class UserController {
         this.eventRepository = eventRepository;
     }
 
-
-
-    @GetMapping(value="/getUser")
-    public User getUser(){
-        return userRepository.findByUsername("Dsavevski");
+    @GetMapping({ "/user"})
+    public Map<String, String> user(Principal principal) {
+        Map<String, String> map = new LinkedHashMap<>();
+        if(principal != null)
+            map.put("name", principal.getName());
+        else
+            map = null;
+        return map;
     }
-
 
 }
