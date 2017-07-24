@@ -1,32 +1,32 @@
 package com.sorsix.eventscheduler.api;
 
 
+import com.sorsix.eventscheduler.domain.Event;
 import com.sorsix.eventscheduler.domain.User;
+import com.sorsix.eventscheduler.service.EventService;
 import com.sorsix.eventscheduler.service.UserService;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
 @RequestMapping(value = "/api/public")
-public class UserPublicController {
+public class PublicController {
 
     private UserService userService;
+    private EventService eventService;
 
-    public UserPublicController(UserService userService) {
+    public PublicController(UserService userService, EventService eventService) {
         this.userService = userService;
+        this.eventService = eventService;
     }
 
     @PostMapping(value = "/register", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public HttpStatus createUser(@RequestBody User user) {
-        if (userService.createUser(user) != null) {
-            return HttpStatus.OK;
-        } else {
-            return HttpStatus.BAD_REQUEST;
-        }
+    public User createUser(@RequestBody User user) {
+        return userService.createUser(user);
     }
 
     @GetMapping(value = "/duplicate/{username}")
@@ -36,13 +36,14 @@ public class UserPublicController {
             json.put("username", null);
             return json;
         } else {
-            json.put("username",username);
+            json.put("username", username);
             return json;
         }
     }
 
-    /*@PostMapping(value = "/login", produces = MediaType.APPLICATION_JSON_VALUE)
-    public User loginUser(@RequestBody User user) {
-        return userService.findByUserName(user.getUsername());
-    }*/
+    @GetMapping(value = "/events", produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<Event> getAllEvents() {
+        return eventService.getAllEvents();
+    }
+
 }

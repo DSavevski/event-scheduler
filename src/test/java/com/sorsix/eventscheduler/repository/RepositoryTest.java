@@ -3,6 +3,7 @@ package com.sorsix.eventscheduler.repository;
 import com.sorsix.eventscheduler.domain.Event;
 import com.sorsix.eventscheduler.domain.Place;
 import com.sorsix.eventscheduler.domain.User;
+import com.sorsix.eventscheduler.service.EventService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +27,8 @@ public class RepositoryTest {
     private UserRepository userRepository;
     @Autowired
     private PlaceRepository placeRepository;
+    @Autowired
+    private EventService eventService;
 
     @Test
     public void testCreateUser() {
@@ -36,10 +39,15 @@ public class RepositoryTest {
 
     @Test
     public void testCreatePlace() {
-        Place place = new Place("Lake awake", "Dojran",
-                "Festival test description");
-        Place savedPlace  = placeRepository.save(place);
-        Assert.assertNotNull(savedPlace);
+        Place place = new Place("Le petit", "Skopje",
+                "Caffe bar");
+        placeRepository.save(place);
+        place = new Place("Bonimi", "Skopje",
+                "Lounge bar");
+        placeRepository.save(place);
+        place = new Place("Jazz in", "Ohrid",
+                "Caffe bar");
+        placeRepository.save(place);
     }
 
     @Test
@@ -58,10 +66,27 @@ public class RepositoryTest {
     }
 
     @Test
-    public void testRetrieve() {
-
+    public void createEvent() {
+        User user = userRepository.findOne(4L);
+        Place place = placeRepository.findOne(1L);
+        Event event = new Event("Friday night",LocalDateTime.now().plusDays(6L),
+                LocalDateTime.now().plusDays(7L),"Friday night with some local DJ's",
+                user,null, place);
+        eventRepository.save(event);
     }
 
+    @Test
+    public void deleteEvent(){
+        eventService.deleteEvent(1L);
+    }
+
+    @Test
+    public void updateEvent(){
+        Event event = eventRepository.findOne(2L);
+        event.setName("Saturday night");
+        event.setDescription("Saturday night with DJ Slave");
+        eventService.updateEvent(event);
+    }
     @Test
     public void testDelete() {
 

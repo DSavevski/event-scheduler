@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.security.Principal;
+
 
 @Service
 public class UserService {
@@ -52,6 +54,13 @@ public class UserService {
             return null;
         }
 
+    }
+
+    public User getUserWithPrincipal(Principal principal){
+        if(principal != null)
+            return userRepository.findByUsername(principal.getName());
+        else
+            return null;
     }
 
     public boolean checkForDuplicateUsername(String username) {

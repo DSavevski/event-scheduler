@@ -50,6 +50,14 @@ public class Event extends BaseEntity {
         this.place = place;
     }
 
+    public void copy(Event event){
+        this.name = event.name;
+        this.startDate = event.startDate;
+        this.endDate = event.endDate;
+        this.description = event.description;
+        this.place = event.place;
+    }
+
     public String getName() {
         return name;
     }
@@ -112,5 +120,17 @@ public class Event extends BaseEntity {
 
     public void setPicture(Picture picture) {
         this.picture = picture;
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("Event{");
+        sb.append("name='").append(name).append('\'');
+        sb.append(", startDate=").append(startDate);
+        sb.append(", endDate=").append(endDate);
+        sb.append(", description='").append(description).append('\'');
+        sb.append(", creator=").append(creator);
+        sb.append('}');
+        return sb.toString();
     }
 }

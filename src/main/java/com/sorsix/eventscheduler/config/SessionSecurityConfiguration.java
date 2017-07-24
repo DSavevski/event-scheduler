@@ -89,7 +89,7 @@ public class SessionSecurityConfiguration extends WebSecurityConfigurerAdapter {
         logger.debug("Configuring HttpSecurity");
         // @formatter:off
         http.csrf().disable()
-                //.httpBasic().disable().addFilterBefore(ssoFilter(), BasicAuthenticationFilter.class)
+               // .httpBasic().disable().addFilterBefore(ssoFilter(), BasicAuthenticationFilter.class)
                 .exceptionHandling()
                 .authenticationEntryPoint(authenticationEntryPoint);
 
