@@ -25,6 +25,7 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.E
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 
 import javax.servlet.Filter;
@@ -89,7 +90,7 @@ public class SessionSecurityConfiguration extends WebSecurityConfigurerAdapter {
         logger.debug("Configuring HttpSecurity");
         // @formatter:off
         http.csrf().disable()
-               // .httpBasic().disable().addFilterBefore(ssoFilter(), BasicAuthenticationFilter.class)
+               .httpBasic().disable().addFilterAfter(ssoFilter(), UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling()
                 .authenticationEntryPoint(authenticationEntryPoint);
 
@@ -119,7 +120,7 @@ public class SessionSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Override
     public void configure(WebSecurity web) throws Exception {
-        web.debug(true);
+        //web.debug(true);
     }
 
     private Filter ssoFilter() {

@@ -1,8 +1,12 @@
 package com.sorsix.eventscheduler.service;
 
+import com.sorsix.eventscheduler.domain.City;
 import com.sorsix.eventscheduler.domain.Event;
 import com.sorsix.eventscheduler.domain.User;
+import com.sorsix.eventscheduler.repository.CityRepository;
 import com.sorsix.eventscheduler.repository.EventRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -15,13 +19,19 @@ import java.util.Map;
 public class EventService {
 
     private EventRepository eventRepository;
+    private CityRepository cityRepository;
 
-    public EventService(EventRepository eventRepository) {
+    public EventService(EventRepository eventRepository, CityRepository cityRepository) {
         this.eventRepository = eventRepository;
+        this.cityRepository = cityRepository;
+    }
+
+    public Event findEventById(Long id) {
+        return eventRepository.findOne(id);
     }
 
     public List<Event> getAllEvents() {
-        return eventRepository.findAll();
+        return eventRepository.findAll(orderBy());
     }
 
     public List<Event> getUserEvents(Long Id) {
@@ -34,6 +44,9 @@ public class EventService {
 
     public Event createEvent(Map<String, String> eventData, User creator) {
         try {
+            Long Id = Long.parseLong(eventData.get("cityId"));
+            City city = cityRepository.findOne(Id);
+
             Event event = new Event();
             event.setName(eventData.get("name"));
             event.setDescription(eventData.get("description"));
@@ -46,20 +59,28 @@ public class EventService {
             event.setStartDate(start);
             event.setEndDate(end);
             event.setCreator(creator);
+            event.setPlace(eventData.get("place"));
+            event.setCity(city);
+
             return eventRepository.save(event);
-        }catch (Exception ex){
+
+        } catch (Exception ex) {
             return null;
         }
     }
 
     public Event updateEvent(Event event) {
-        Event toUpdate = eventRepository.findOne(event.getId());
-        toUpdate.copy(event);
-        return eventRepository.save(toUpdate);
+        return eventRepository.save(event);
     }
 
-    public void deleteEvent(Long Id) {
-        eventRepository.delete(Id);
+    public String deleteEvent(Long Id) {
+        try {
+            eventRepository.delete(Id);
+            return "Successfully deleted!";
+        } catch (Exception ex) {
+            return "Event was not deleted!";
+        }
+
     }
 
     private LocalDateTime convertStringToDate(String date, String startTime, String endTime, int i) {
@@ -68,7 +89,7 @@ public class EventService {
         String start[] = startTime.split("T");
         String end[] = endTime.split("T");
 
-        String dateString = "";
+        String dateString;
 
         if (i == 0) {
             dateString = dates[0] + " " + start[1].substring(0, 8);
@@ -78,6 +99,13 @@ public class EventService {
 
         LocalDateTime dateTime = LocalDateTime.parse(dateString, formatter);
         return dateTime;
+    }
 
+    public List<Event> findByCityName(String cityName) {
+        return eventRepository.findAllByCityName(cityName, orderBy());
+    }
+
+    public Page<Event> listAllByPage(Pageable pageable){
+        return eventRepository.findAll(pageable);
     }
 }

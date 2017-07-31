@@ -13,7 +13,7 @@ import java.util.Arrays;
 @Table(name = "pictures")
 public class Picture extends BaseEntity {
 
-    public byte [] data;
+    public byte[] data;
 
     public String fileName;
 

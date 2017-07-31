@@ -1,7 +1,5 @@
 package com.sorsix.eventscheduler.domain;
 
-import org.apache.tomcat.jni.Local;
-
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -22,6 +20,8 @@ public class Event extends BaseEntity {
     @Column(name = "end_date")
     private LocalDateTime endDate;
 
+    private String place;
+
     private String description;
 
     @ManyToOne
@@ -31,7 +31,7 @@ public class Event extends BaseEntity {
     private List<User> attendingUsers = new ArrayList<>();
 
     @ManyToOne
-    private Place place;
+    private City city;
 
     @OneToOne
     private Picture picture;
@@ -40,7 +40,7 @@ public class Event extends BaseEntity {
     }
 
     public Event(String name, LocalDateTime startDate, LocalDateTime endDate,
-                 String description, User creator, List<User> attendingUsers, Place place) {
+                 String description, User creator, List<User> attendingUsers, String place) {
         this.name = name;
         this.startDate = startDate;
         this.endDate = endDate;
@@ -50,72 +50,92 @@ public class Event extends BaseEntity {
         this.place = place;
     }
 
-    public void copy(Event event){
+    public void copy(Event event) {
         this.name = event.name;
         this.startDate = event.startDate;
         this.endDate = event.endDate;
         this.description = event.description;
-        this.place = event.place;
+        this.city = event.city;
+    }
+
+    public void addToAttendingUsers(User user) {
+        attendingUsers.add(user);
+    }
+
+    public boolean chekIfUserGoing(User user) {
+        return attendingUsers.contains(user);
+    }
+
+    public boolean cancelGoing(User user) {
+        return attendingUsers.remove(user);
     }
 
     public String getName() {
         return name;
     }
 
-    public LocalDateTime getStartDate() {
-        return startDate;
-    }
-
-    public LocalDateTime getEndDate() {
-        return endDate;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public User getCreator() {
-        return creator;
-    }
-
-    public List<User> getAttendingUsers() {
-        return attendingUsers;
-    }
-
-    public Place getPlace() {
-        return place;
-    }
-
-    public Picture getPicture() {
-        return picture;
-    }
-
     public void setName(String name) {
         this.name = name;
+    }
+
+    public LocalDateTime getStartDate() {
+        return startDate;
     }
 
     public void setStartDate(LocalDateTime startDate) {
         this.startDate = startDate;
     }
 
+    public LocalDateTime getEndDate() {
+        return endDate;
+    }
+
     public void setEndDate(LocalDateTime endDate) {
         this.endDate = endDate;
+    }
+
+    public String getPlace() {
+        return place;
+    }
+
+    public void setPlace(String place) {
+        this.place = place;
+    }
+
+    public String getDescription() {
+        return description;
     }
 
     public void setDescription(String description) {
         this.description = description;
     }
 
+    public User getCreator() {
+        return creator;
+    }
+
     public void setCreator(User creator) {
         this.creator = creator;
+    }
+
+    public List<User> getAttendingUsers() {
+        return attendingUsers;
     }
 
     public void setAttendingUsers(List<User> attendingUsers) {
         this.attendingUsers = attendingUsers;
     }
 
-    public void setPlace(Place place) {
-        this.place = place;
+    public City getCity() {
+        return city;
+    }
+
+    public void setCity(City city) {
+        this.city = city;
+    }
+
+    public Picture getPicture() {
+        return picture;
     }
 
     public void setPicture(Picture picture) {

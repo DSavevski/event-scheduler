@@ -7,6 +7,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import javax.persistence.*;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * Created by Dragan on 7/18/17.
@@ -28,6 +29,11 @@ public class User extends BaseEntity implements UserDetails {
 
     @OneToOne
     private Picture picture;
+
+   /* @ManyToMany
+    @JoinTable(name = "events_attending_users",
+            joinColumns=@JoinColumn(name = "id"), inverseJoinColumns = @JoinColumn(name = "id"))
+    List<Event> events;*/
 
     public User() {
     }

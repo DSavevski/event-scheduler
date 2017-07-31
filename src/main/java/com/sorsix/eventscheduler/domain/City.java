@@ -7,21 +7,18 @@ import javax.persistence.Table;
  * Created by Dragan on 7/18/17.
  */
 @Table
-@Entity(name = "places")
-public class Place extends BaseEntity {
+@Entity(name = "cities")
+public class City extends BaseEntity {
 
     private String name;
 
-    private String city;
-
     private String description;
 
-    public Place() {
+    public City() {
     }
 
-    public Place(String name, String city, String description) {
+    public City(String name, String description) {
         this.name = name;
-        this.city = city;
         this.description = description;
     }
 
@@ -31,14 +28,6 @@ public class Place extends BaseEntity {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getCity() {
-        return city;
-    }
-
-    public void setCity(String city) {
-        this.city = city;
     }
 
     public String getDescription() {

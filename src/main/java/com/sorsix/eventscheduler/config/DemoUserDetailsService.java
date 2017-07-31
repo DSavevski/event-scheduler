@@ -26,7 +26,8 @@ public class DemoUserDetailsService implements UserDetailsService {
         User user = userRepository.findByUsername(username);
 
         if (user != null) {
-            return new User(username, user.getPassword());
+            //return new User(username, user.getPassword());
+            return user;
         } else {
             throw new UsernameNotFoundException(String.format("Username [%s] not found", username));
         }
