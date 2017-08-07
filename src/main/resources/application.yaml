@@ -1,0 +1,37 @@
+spring:
+  application:
+    name: event-scheduler
+  datasource:
+    url: jdbc:postgresql://localhost:5432/event-scheduler
+    username: postgres
+    password: admin
+    driver-class-name: org.postgresql.Driver
+# Hibernate JPA configuration
+  jpa:
+    hibernate:
+      ddl-auto: update
+      dialect: org.hibernate.dialect.PostgreSQL9Dialect
+
+github:
+  client:
+    client-id: 0d7f153948cdc29db971
+    client-secret: fb41f7702a45e82733d6154fb2366226d4f6d596
+    access-token-uri: https://github.com/login/oauth/access_token
+    user-authorization-uri: https://github.com/login/oauth/authorize
+    client-authentication-scheme: form
+  resource:
+    user-info-uri: https://api.github.com/user
+
+facebook:
+  client:
+    clientId: 324362628007517
+    clientSecret: ab1461c5bdc5dda9a137431dff7a225c
+    accessTokenUri: https://graph.facebook.com/oauth/access_token
+    userAuthorizationUri: https://www.facebook.com/dialog/oauth
+    tokenName: oauth_token
+    authenticationScheme: query
+    clientAuthenticationScheme: form
+  resource:
+    userInfoUri: https://graph.facebook.com/me
+
+
