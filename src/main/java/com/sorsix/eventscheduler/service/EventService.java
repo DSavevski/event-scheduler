@@ -10,8 +10,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -31,7 +33,10 @@ public class EventService {
     }
 
     public List<Event> getAllEvents() {
-        return eventRepository.findAll(orderBy());
+        List<Event> events =eventRepository.findAll(orderBy());
+
+
+        return filterEvents(events);
     }
 
     public List<Event> getUserEvents(Long Id) {
@@ -102,10 +107,25 @@ public class EventService {
     }
 
     public List<Event> findByCityName(String cityName) {
-        return eventRepository.findAllByCityName(cityName, orderBy());
+        List<Event> events = eventRepository.findAllByCityName(cityName, orderBy());
+        return filterEvents(events);
+    }
+
+    public List<Event> filterEvents(List<Event> events){
+        LocalDateTime dateTime= LocalDateTime.now();
+        List<Event> filterList = new ArrayList<>();
+        for(int i =0;i<events.size(); i++){
+            Event tmp = events.get(i);
+            if(tmp.getEndDate().isAfter(dateTime)){
+                filterList.add(tmp);
+            }
+        }
+        return filterList;
+
     }
 
     public Page<Event> listAllByPage(Pageable pageable){
         return eventRepository.findAll(pageable);
+
     }
 }

@@ -1,12 +1,20 @@
 package com.sorsix.eventscheduler.config;
 
+import com.sorsix.eventscheduler.domain.User;
+import com.sorsix.eventscheduler.domain.enums.Provider;
+import com.sorsix.eventscheduler.domain.enums.Role;
+import com.sorsix.eventscheduler.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.event.EventListener;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.event.AuthenticationSuccessEvent;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -16,14 +24,15 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Map;
 
 /**
  * Common authentication handlers
  */
 @Configuration
-public class AuthenticationHandlers {
+public class AuthenticationHandlers  {
 
-    static final Logger logger = LoggerFactory.getLogger(AuthenticationHandlers.class);
+    private static final Logger logger = LoggerFactory.getLogger(AuthenticationHandlers.class);
 
     @Bean
     public AuthenticationEntryPoint authenticationEntryPoint() {
@@ -42,21 +51,6 @@ public class AuthenticationHandlers {
         };
     }
 
-    @Bean
-    public AuthenticationSuccessHandler successHandler() {
-        return (request, response, authentication) -> {
-            logger.debug("Authentication success");
-            response.setStatus(HttpStatus.OK.value());
-        };
-    }
-
-    @Bean
-    public AuthenticationFailureHandler failureHandler() {
-        return (request, response, exception) -> {
-            logger.debug("Authentication failure");
-            response.setStatus(HttpStatus.UNAUTHORIZED.value());
-        };
-    }
 
     @Bean
     public LogoutSuccessHandler logoutSuccessHandler() {

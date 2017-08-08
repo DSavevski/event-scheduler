@@ -19,4 +19,14 @@ public class PictureService {
     public Picture findById(Long id){
         return pictureRepository.findOne(id);
     }
+
+    public String deletePicture(Long Id) {
+        try {
+            pictureRepository.delete(Id);
+            return "Successfully deleted!";
+        } catch (Exception ex) {
+            return "Picture was not deleted!";
+        }
+
+    }
 }

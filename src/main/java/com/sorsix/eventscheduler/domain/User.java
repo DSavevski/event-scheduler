@@ -1,5 +1,7 @@
 package com.sorsix.eventscheduler.domain;
 
+import com.sorsix.eventscheduler.domain.enums.Provider;
+import com.sorsix.eventscheduler.domain.enums.Role;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -8,6 +10,7 @@ import javax.persistence.*;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by Dragan on 7/18/17.
@@ -29,6 +32,12 @@ public class User extends BaseEntity implements UserDetails {
 
     @OneToOne
     private Picture picture;
+
+    @Enumerated(EnumType.STRING)
+    private Provider provider;
+
+    @Enumerated(EnumType.STRING)
+    private Role role;
 
    /* @ManyToMany
     @JoinTable(name = "events_attending_users",
@@ -56,7 +65,7 @@ public class User extends BaseEntity implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singleton(new SimpleGrantedAuthority("USER"));
+        return Collections.singleton(new SimpleGrantedAuthority(role.toString()));
     }
 
     @Override
@@ -109,6 +118,30 @@ public class User extends BaseEntity implements UserDetails {
 
     public void setLastName(String lastName) {
         this.lastName = lastName;
+    }
+
+    public void setPicture(Picture picture) {
+        this.picture = picture;
+    }
+
+    public Picture getPicture() {
+        return picture;
+    }
+
+    public Provider getProvider() {
+        return provider;
+    }
+
+    public void setProvider(Provider provider) {
+        this.provider = provider;
+    }
+
+    public Role getRole() {
+        return role;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
     }
 
     @Override

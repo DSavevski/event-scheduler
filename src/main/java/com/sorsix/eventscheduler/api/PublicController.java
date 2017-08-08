@@ -37,8 +37,13 @@ public class PublicController {
     }
 
     @PostMapping(value = "/register", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public User createUser(@RequestBody User user) {
-        return userService.createUser(user);
+    public Long createUser(@RequestBody User user) {
+        User tmp = userService.createUser(user);
+        if (tmp != null) {
+            return tmp.getId();
+        } else {
+            return null;
+        }
     }
 
     @GetMapping(value = "/duplicate/{username}")

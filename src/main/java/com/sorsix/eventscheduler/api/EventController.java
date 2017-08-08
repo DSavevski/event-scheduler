@@ -93,6 +93,11 @@ public class EventController {
         pictureToSave.fileName = image.getName();
         pictureService.savePicture(pictureToSave);
 
+        Picture oldPicture= event.getPicture();
+        if(oldPicture != null){
+            event.setPicture(null);
+            pictureService.deletePicture(oldPicture.getId());
+        }
         event.setPicture(pictureToSave);
 
         eventService.updateEvent(event);
