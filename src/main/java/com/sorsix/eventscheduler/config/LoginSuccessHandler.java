@@ -43,17 +43,19 @@ public class LoginSuccessHandler extends SavedRequestAwareAuthenticationSuccessH
 
         if (user == null) {
             Map<String, String> map = (Map<String, String>) ((OAuth2Authentication) authentication).getUserAuthentication().getDetails();
-            String[] parts = map.get("name").split(" ");
-
             user = new User(authentication.getName());
             user.setProvider(this.provider);
             user.setRole(this.role);
 
-            if (parts.length > 1) {
-                user.setFirstName(parts[0]);
-                user.setLastName(parts[1]);
-            } else {
-                user.setFirstName(map.get("name"));
+            if (map.get("name") != null) {
+                String[] parts = map.get("name").split(" ");
+
+                if (parts.length > 1) {
+                    user.setFirstName(parts[0]);
+                    user.setLastName(parts[1]);
+                } else {
+                    user.setFirstName(map.get("name"));
+                }
             }
 
             logger.info("Creating new user [{}]", user);

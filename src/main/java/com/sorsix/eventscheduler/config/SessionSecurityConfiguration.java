@@ -10,7 +10,6 @@ import org.springframework.boot.autoconfigure.security.oauth2.resource.ResourceS
 import org.springframework.boot.autoconfigure.security.oauth2.resource.UserInfoTokenServices;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -137,7 +136,7 @@ public class SessionSecurityConfiguration extends WebSecurityConfigurerAdapter {
         CompositeFilter filter = new CompositeFilter();
         List<Filter> filters = new ArrayList<>();
 
-        OAuth2ClientAuthenticationProcessingFilter facebookFilter = new OAuth2ClientAuthenticationProcessingFilter("/api/public/login/facebook");
+        OAuth2ClientAuthenticationProcessingFilter facebookFilter = new OAuth2ClientAuthenticationProcessingFilter(Provider.FACEBOOK.getLoginUrl());
         //facebookFilter.setApplicationEventPublisher(eventPublisher);
         OAuth2RestTemplate facebookTemplate = new OAuth2RestTemplate(facebook(), oauth2ClientContext);
         facebookFilter.setRestTemplate(facebookTemplate);
@@ -148,7 +147,7 @@ public class SessionSecurityConfiguration extends WebSecurityConfigurerAdapter {
         filters.add(facebookFilter);
 
         OAuth2ClientAuthenticationProcessingFilter githubFilter =
-                new OAuth2ClientAuthenticationProcessingFilter("/api/public/login/github");
+                new OAuth2ClientAuthenticationProcessingFilter(Provider.GITHUB.getLoginUrl());
         //githubFilter.setApplicationEventPublisher(eventPublisher);
         OAuth2RestTemplate githubTemplate = new OAuth2RestTemplate(github(), oauth2ClientContext);
         githubFilter.setRestTemplate(githubTemplate);

@@ -53,7 +53,7 @@ public class EventController {
     }
 
     @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public Event updateEvent(@RequestBody Map<String, String> newEventData){
+    public boolean updateEvent(@RequestBody Map<String, String> newEventData){
         Long Id = Long.parseLong(newEventData.get("id"));
         Event event = eventService.findEventById(Id);
 
@@ -65,7 +65,10 @@ public class EventController {
         City city = cityService.findById(cityId);
 
         event.setCity(city);
-        return eventService.updateEvent(event);
+
+        if(eventService.updateEvent(event) != null)
+            return true;
+        return false;
     }
 
     @PostMapping

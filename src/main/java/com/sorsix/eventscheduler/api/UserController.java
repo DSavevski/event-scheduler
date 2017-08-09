@@ -29,11 +29,6 @@ public class UserController {
         this.pictureService = pictureService;
     }
 
-    @GetMapping(value="check")
-    public boolean checkUser(){
-        return userService.checkUser();
-
-    }
     @GetMapping
     public User user(Principal principal) {
         return userService.getUserWithPrincipal(principal);
@@ -46,6 +41,7 @@ public class UserController {
         user.setLastName(firstAndLastName.get("lastName"));
         return userService.updateUser(user);
     }
+
     @PostMapping(value = "/upload/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public void uploadImage(@RequestParam("image") MultipartFile image,
                             @PathVariable Long id) throws IOException {

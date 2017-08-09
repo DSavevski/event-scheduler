@@ -33,15 +33,6 @@ public class UserService implements UserDetailsService{
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
     }
 
-    public boolean checkUser() {
-        try {
-            OAuth2Authentication authentication = (OAuth2Authentication) SecurityContextHolder.getContext().getAuthentication();
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
     public User findUserById(Long id) {
         return userRepository.findOne(id);
     }

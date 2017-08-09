@@ -11,19 +11,19 @@ public enum Provider {
     GITHUB {
         @Override
         public String getLoginUrl() {
-            return "/login/github";
+            return "/api/public/login/github";
         }
     },
     GOOGLE {
         @Override
         public String getLoginUrl() {
-            return "/login/google";
+            return "/api/public/login/google";
         }
     },
     FACEBOOK {
         @Override
         public String getLoginUrl() {
-            return "/login/facebook";
+            return "/api/public/login/facebook";
         }
     };
 
