@@ -30,6 +30,8 @@ public class User extends BaseEntity implements UserDetails {
     @Column(name = "last_name")
     private String lastName;
 
+    private String email;
+
     @OneToOne
     private Picture picture;
 
@@ -39,12 +41,15 @@ public class User extends BaseEntity implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    private boolean enabled;
+
    /* @ManyToMany
     @JoinTable(name = "events_attending_users",
             joinColumns=@JoinColumn(name = "id"), inverseJoinColumns = @JoinColumn(name = "id"))
     List<Event> events;*/
 
     public User() {
+        this.enabled = false;
     }
 
     public User(String username) {
@@ -61,6 +66,7 @@ public class User extends BaseEntity implements UserDetails {
         this.password = password;
         this.firstName = firstName;
         this.lastName = lastName;
+        this.enabled = false;
     }
 
     @Override
@@ -85,7 +91,7 @@ public class User extends BaseEntity implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return this.enabled;
     }
 
     public String getUsername() {
@@ -106,6 +112,14 @@ public class User extends BaseEntity implements UserDetails {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public void setPassword(String password) {
@@ -142,6 +156,14 @@ public class User extends BaseEntity implements UserDetails {
 
     public void setRole(Role role) {
         this.role = role;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public boolean getEnabled(){
+        return this.enabled;
     }
 
     @Override

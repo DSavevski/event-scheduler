@@ -1,24 +1,21 @@
 package com.sorsix.eventscheduler.service;
 
 import com.sorsix.eventscheduler.domain.User;
+import com.sorsix.eventscheduler.domain.VerificationToken;
 import com.sorsix.eventscheduler.domain.enums.Provider;
 import com.sorsix.eventscheduler.domain.enums.Role;
+import com.sorsix.eventscheduler.repository.TokenRepository;
 import com.sorsix.eventscheduler.repository.UserRepository;
-import org.springframework.context.event.EventListener;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.security.authentication.event.AuthenticationSuccessEvent;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.security.Principal;
-import java.util.Map;
 
 
 @Service
@@ -27,10 +24,12 @@ public class UserService implements UserDetailsService{
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
     private UserRepository userRepository;
     private BCryptPasswordEncoder bCryptPasswordEncoder;
+    private TokenRepository tokenRepository;
 
-    public UserService(UserRepository userRepository, BCryptPasswordEncoder bCryptPasswordEncoder) {
+    public UserService(UserRepository userRepository, BCryptPasswordEncoder bCryptPasswordEncoder, TokenRepository tokenRepository) {
         this.userRepository = userRepository;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+        this.tokenRepository = tokenRepository;
     }
 
     public User findUserById(Long id) {
@@ -100,5 +99,14 @@ public class UserService implements UserDetailsService{
         } else {
             throw new UsernameNotFoundException(String.format("Username [%s] not found", username));
         }
+    }
+
+    public void createVerificationToken(User user, String token) {
+        VerificationToken myToken = new VerificationToken(token, user);
+        tokenRepository.save(myToken);
+    }
+
+    public VerificationToken getVerificationToken(String token) {
+        return tokenRepository.findByToken(token);
     }
 }

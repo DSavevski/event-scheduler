@@ -2,15 +2,19 @@ package com.sorsix.eventscheduler.api;
 
 import com.sorsix.eventscheduler.domain.Picture;
 import com.sorsix.eventscheduler.domain.User;
+import com.sorsix.eventscheduler.domain.VerificationToken;
 import com.sorsix.eventscheduler.service.PictureService;
 import com.sorsix.eventscheduler.service.UserService;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.security.Principal;
+import java.util.Calendar;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -55,8 +59,8 @@ public class UserController {
         pictureToSave.fileName = image.getName();
         pictureService.savePicture(pictureToSave);
 
-        Picture oldPicture= user.getPicture();
-        if(oldPicture != null){
+        Picture oldPicture = user.getPicture();
+        if (oldPicture != null) {
             user.setPicture(null);
             pictureService.deletePicture(oldPicture.getId());
         }
@@ -85,13 +89,32 @@ public class UserController {
     }
 
     @GetMapping(value = "/provider", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Map<String, String> getProvider(Principal principal){
+    public Map<String, String> getProvider(Principal principal) {
         String provider = userService.findByUserName(principal.getName()).getProvider().toString();
 
         Map<String, String> map = new HashMap<>();
         map.put("provider", provider);
 
         return map;
+    }
+
+    @GetMapping(value = "/registrationConfirm")
+    public String confirmRegistration(@RequestParam("token") String token) {
+
+        VerificationToken verificationToken = userService.getVerificationToken(token);
+        if (verificationToken == null) {
+            return "Invalid token";
+        }
+
+        User user = verificationToken.getUser();
+        Calendar cal = Calendar.getInstance();
+        if ((verificationToken.getExpiryDate().getTime() - cal.getTime().getTime()) <= 0) {
+            return "Token expired";
+        }
+
+        user.setEnabled(true);
+        userService.updateUser(user);
+        return "Account activated";
     }
 
 }
