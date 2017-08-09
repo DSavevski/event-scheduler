@@ -97,24 +97,4 @@ public class UserController {
 
         return map;
     }
-
-    @GetMapping(value = "/registrationConfirm")
-    public String confirmRegistration(@RequestParam("token") String token) {
-
-        VerificationToken verificationToken = userService.getVerificationToken(token);
-        if (verificationToken == null) {
-            return "Invalid token";
-        }
-
-        User user = verificationToken.getUser();
-        Calendar cal = Calendar.getInstance();
-        if ((verificationToken.getExpiryDate().getTime() - cal.getTime().getTime()) <= 0) {
-            return "Token expired";
-        }
-
-        user.setEnabled(true);
-        userService.updateUser(user);
-        return "Account activated";
-    }
-
 }

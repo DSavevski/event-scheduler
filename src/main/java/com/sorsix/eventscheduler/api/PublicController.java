@@ -1,10 +1,7 @@
 package com.sorsix.eventscheduler.api;
 
 
-import com.sorsix.eventscheduler.domain.City;
-import com.sorsix.eventscheduler.domain.Event;
-import com.sorsix.eventscheduler.domain.Picture;
-import com.sorsix.eventscheduler.domain.User;
+import com.sorsix.eventscheduler.domain.*;
 import com.sorsix.eventscheduler.events.OnRegistrationCompleteEvent;
 import com.sorsix.eventscheduler.service.CityService;
 import com.sorsix.eventscheduler.service.EventService;
@@ -18,6 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,6 +50,25 @@ public class PublicController {
         } else {
             return null;
         }
+    }
+
+    @GetMapping(value = "/registrationConfirm")
+    public String confirmRegistration(@RequestParam("token") String token) {
+
+        VerificationToken verificationToken = userService.getVerificationToken(token);
+        if (verificationToken == null) {
+            return "Invalid token";
+        }
+
+        User user = verificationToken.getUser();
+        Calendar cal = Calendar.getInstance();
+        if ((verificationToken.getExpiryDate().getTime() - cal.getTime().getTime()) <= 0) {
+            return "Token expired";
+        }
+
+        user.setEnabled(true);
+        userService.updateUser(user);
+        return "Account activated";
     }
 
     @GetMapping(value = "/duplicate/{username}")
@@ -96,6 +113,6 @@ public class PublicController {
     }
 
     private String getAppUrl() {
-        return "http://localhost:4200/";
+        return "http://localhost:4200";
     }
 }

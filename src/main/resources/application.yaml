@@ -9,7 +9,7 @@ spring:
 # Hibernate JPA configuration
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
       dialect: org.hibernate.dialect.PostgreSQL9Dialect
 
 github:

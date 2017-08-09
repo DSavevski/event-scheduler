@@ -40,9 +40,10 @@ public class RegistrationListener implements ApplicationListener<OnRegistrationC
         //String message = messages.getMessage("message.regSucc", null, event.getLocale());
 
         SimpleMailMessage email = new SimpleMailMessage();
+        email.setFrom("event-scheduler@sorsix.com");
         email.setTo(recipientAddress);
         email.setSubject(subject);
-        email.setText("TEST MESSAGE" + " rn" + "http://localhost:4200" + confirmationUrl);
+        email.setText("Click the following link in order to activate your account: \n" + confirmationUrl);
         mailSender.send(email);
     }
 }
