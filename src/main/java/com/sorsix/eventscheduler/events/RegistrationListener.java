@@ -35,12 +35,9 @@ public class RegistrationListener implements ApplicationListener<OnRegistrationC
 
         String recipientAddress = user.getEmail();
         String subject = "Registration Confirmation";
-        String confirmationUrl
-                = event.getAppUrl() + "/registration?token=" + token;
-        //String message = messages.getMessage("message.regSucc", null, event.getLocale());
+        String confirmationUrl = event.getAppUrl() + "/registration?token=" + token;
 
         SimpleMailMessage email = new SimpleMailMessage();
-        email.setFrom("event-scheduler@sorsix.com");
         email.setTo(recipientAddress);
         email.setSubject(subject);
         email.setText("Click the following link in order to activate your account: \n" + confirmationUrl);

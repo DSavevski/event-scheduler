@@ -4,7 +4,7 @@ import com.sorsix.eventscheduler.domain.User;
 import com.sorsix.eventscheduler.domain.VerificationToken;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface TokenRepository extends JpaRepository<VerificationToken, Long> {
+public interface RegistrationTokenRepository extends JpaRepository<VerificationToken, Long> {
 
     VerificationToken findByToken(String token);
 

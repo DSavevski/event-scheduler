@@ -8,13 +8,11 @@ import java.util.Locale;
 public class OnRegistrationCompleteEvent extends ApplicationEvent {
 
     private String appUrl;
-    private Locale locale;
     private User user;
 
-    public OnRegistrationCompleteEvent(User user, Locale locale, String appUrl) {
+    public OnRegistrationCompleteEvent(User user, String appUrl) {
         super(user);
         this.user = user;
-        this.locale = locale;
         this.appUrl = appUrl;
     }
 
@@ -34,11 +32,4 @@ public class OnRegistrationCompleteEvent extends ApplicationEvent {
         this.appUrl = appUrl;
     }
 
-    public Locale getLocale() {
-        return locale;
-    }
-
-    public void setLocale(Locale locale) {
-        this.locale = locale;
-    }
 }

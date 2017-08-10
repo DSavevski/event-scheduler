@@ -2,12 +2,15 @@ package com.sorsix.eventscheduler.api;
 
 
 import com.sorsix.eventscheduler.domain.*;
+import com.sorsix.eventscheduler.domain.dto.ResetForgottenPasswordDto;
 import com.sorsix.eventscheduler.events.OnRegistrationCompleteEvent;
 import com.sorsix.eventscheduler.service.CityService;
 import com.sorsix.eventscheduler.service.EventService;
 import com.sorsix.eventscheduler.service.PictureService;
 import com.sorsix.eventscheduler.service.UserService;
+import com.sun.deploy.net.HttpResponse;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
@@ -42,45 +45,36 @@ public class PublicController {
     @PostMapping(value = "/register", consumes = MediaType.APPLICATION_JSON_VALUE)
     public Long createUser(@RequestBody User user, HttpServletRequest request) {
         User usr = userService.createUser(user);
+        eventPublisher.publishEvent(new OnRegistrationCompleteEvent(usr, getAppUrl()));
 
-        eventPublisher.publishEvent(new OnRegistrationCompleteEvent(usr,
-                request.getLocale(), getAppUrl()));
-        if (usr != null) {
-            return usr.getId();
-        } else {
+        if (usr != null) return usr.getId();
+        else
             return null;
-        }
     }
 
     @GetMapping(value = "/registrationConfirm")
     public String confirmRegistration(@RequestParam("token") String token) {
-
-        VerificationToken verificationToken = userService.getVerificationToken(token);
-        if (verificationToken == null) {
-            return "Invalid token";
-        }
-
-        User user = verificationToken.getUser();
-        Calendar cal = Calendar.getInstance();
-        if ((verificationToken.getExpiryDate().getTime() - cal.getTime().getTime()) <= 0) {
-            return "Token expired";
-        }
-
-        user.setEnabled(true);
-        userService.updateUser(user);
-        return "Account activated";
+        return userService.confirmRegistration(token);
     }
 
     @GetMapping(value = "/duplicate/{username}")
-    public Map<String, String> checkForDuplicateUsername(@PathVariable String username) {
-        Map<String, String> json = new HashMap<>();
-        if (userService.checkForDuplicateUsername(username)) {
-            json.put("username", null);
-            return json;
-        } else {
-            json.put("username", username);
-            return json;
-        }
+    public boolean checkForDuplicateUsername(@PathVariable String username) {
+        return userService.checkForDuplicateUsername(username);
+    }
+
+    @GetMapping(value = "/check")
+    public boolean checkIfUsernameOrEmailExists(@RequestParam("usernameOrEmail") String usernameOrEmail) {
+        return userService.findByEmailOrUsername(usernameOrEmail) != null;
+    }
+
+    @GetMapping(value = "/forgot/{usernameOrEmail}")
+    public boolean forgotPassword(@PathVariable String usernameOrEmail){
+        return userService.forgotPasswordMailSending(usernameOrEmail, getAppUrl());
+    }
+
+    @PostMapping(value = "/resetForgottenPassword", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public boolean resetForgottenPassword(@RequestBody ResetForgottenPasswordDto dto){
+        return userService.resetForgottenPassword(dto);
     }
 
     @GetMapping(value = "/events", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -99,6 +93,7 @@ public class PublicController {
             OutputStream outputStream = httpServletResponse.getOutputStream();
             outputStream.write(picture.data);
             outputStream.flush();
+            outputStream.close();
         }
     }
 
@@ -108,7 +103,7 @@ public class PublicController {
     }
 
     @GetMapping(value = "/filter/{cityName}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<Event> filterByCity(@PathVariable String cityName){
+    public List<Event> filterByCity(@PathVariable String cityName) {
         return eventService.findByCityName(cityName);
     }
 
