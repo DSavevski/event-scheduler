@@ -46,6 +46,7 @@ public class LoginSuccessHandler extends SavedRequestAwareAuthenticationSuccessH
             user = new User(authentication.getName());
             user.setProvider(this.provider);
             user.setRole(this.role);
+            user.setEnabled(true);
 
             if (map.get("name") != null) {
                 String[] parts = map.get("name").split(" ");

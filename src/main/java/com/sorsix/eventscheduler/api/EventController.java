@@ -4,6 +4,7 @@ import com.sorsix.eventscheduler.domain.City;
 import com.sorsix.eventscheduler.domain.Event;
 import com.sorsix.eventscheduler.domain.Picture;
 import com.sorsix.eventscheduler.domain.User;
+import com.sorsix.eventscheduler.domain.dto.EventCreationDto;
 import com.sorsix.eventscheduler.service.CityService;
 import com.sorsix.eventscheduler.service.EventService;
 import com.sorsix.eventscheduler.service.PictureService;
@@ -71,10 +72,10 @@ public class EventController {
         return false;
     }
 
-    @PostMapping
-    public Long createEvent(@RequestBody Map<String, String> map, Principal principal) {
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+    public Long createEvent(@RequestBody EventCreationDto dto, Principal principal) {
         User creator = userService.findByUserName(principal.getName());
-        Event event = eventService.createEvent(map, creator);
+        Event event = eventService.createEvent(dto, creator);
 
         if (event != null) {
             return event.getId();
