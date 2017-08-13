@@ -7,6 +7,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -24,5 +25,9 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     List<Event> findAllByCityName(String cityName, Sort sort);
 
     Page<Event> findAll(Pageable pageable);
+
+    List<Event> findAllByEndDateAfterAndCity(LocalDateTime end, String city, Sort sort);
+
+    List<Event> findAllByEndDateAfter(LocalDateTime end, Sort sort);
 
 }

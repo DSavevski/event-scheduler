@@ -1,17 +1,12 @@
 package com.sorsix.eventscheduler.api;
 
-import com.sorsix.eventscheduler.domain.City;
 import com.sorsix.eventscheduler.domain.Event;
-import com.sorsix.eventscheduler.domain.Picture;
 import com.sorsix.eventscheduler.domain.User;
 import com.sorsix.eventscheduler.domain.dto.EventCreationDto;
-import com.sorsix.eventscheduler.service.CityService;
 import com.sorsix.eventscheduler.service.EventService;
-import com.sorsix.eventscheduler.service.PictureService;
 import com.sorsix.eventscheduler.service.UserService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -26,14 +21,10 @@ public class EventController {
 
     private EventService eventService;
     private UserService userService;
-    private PictureService pictureService;
-    private CityService cityService;
 
-    public EventController(EventService eventService, UserService userService, PictureService pictureService, CityService cityService) {
+    public EventController(EventService eventService, UserService userService) {
         this.eventService = eventService;
         this.userService = userService;
-        this.pictureService = pictureService;
-        this.cityService = cityService;
     }
 
     @DeleteMapping(value = "/{eventId}")
@@ -41,70 +32,48 @@ public class EventController {
         return eventService.deleteEvent(eventId);
     }
 
-    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping()
     public List<Event> getUserEvents(Principal principal) {
         User loggedUser = userService.findByUserName(principal.getName());
         return this.eventService.getUserEvents(loggedUser.getId());
     }
 
-    @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/{id}")
     public Event getEvent(@PathVariable Long id){
-        Event event = eventService.findEventById(id);
-        return event;
+        return eventService.findEventById(id);
     }
 
-    @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping()
     public boolean updateEvent(@RequestBody Map<String, String> newEventData){
         Long Id = Long.parseLong(newEventData.get("id"));
-        Event event = eventService.findEventById(Id);
-
-        event.setName(newEventData.get("name"));
-        event.setDescription(newEventData.get("description"));
-        event.setPlace(newEventData.get("place"));
-
+        String name = newEventData.get("name");
+        String desc = newEventData.get("description");
+        String place = newEventData.get("place");
         Long cityId = Long.parseLong(newEventData.get("cityId"));
-        City city = cityService.findById(cityId);
 
-        event.setCity(city);
-
-        if(eventService.updateEvent(event) != null)
-            return true;
-        return false;
+        Event event = eventService.updateEvent(Id,name,desc,place,cityId);
+        return event != null;
     }
 
-    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping()
     public Long createEvent(@RequestBody EventCreationDto dto, Principal principal) {
         User creator = userService.findByUserName(principal.getName());
         Event event = eventService.createEvent(dto, creator);
 
-        if (event != null) {
-            return event.getId();
-        } else {
-            return null;
-        }
+        if (event != null) return event.getId();
+        else return null;
     }
 
-    @PostMapping(value = "/upload/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/upload/{id}")
     public void uploadImage(@RequestParam("image") MultipartFile image,
                             @PathVariable Long id) throws IOException {
 
-        Event event = eventService.findEventById(id);
+        byte [] data = image.getBytes();
+        String contentType = image.getContentType();
+        Long size = image.getSize();
+        String fileName = image.getName();
 
-        Picture pictureToSave = new Picture();
-        pictureToSave.data = image.getBytes();
-        pictureToSave.contentType = image.getContentType();
-        pictureToSave.size = image.getSize();
-        pictureToSave.fileName = image.getName();
-        pictureService.savePicture(pictureToSave);
-
-        Picture oldPicture= event.getPicture();
-        if(oldPicture != null){
-            event.setPicture(null);
-            pictureService.deletePicture(oldPicture.getId());
-        }
-        event.setPicture(pictureToSave);
-
-        eventService.updateEvent(event);
+        eventService.uploadImage(id, data, contentType, size, fileName);
     }
 
     @GetMapping(value = "/going/{eventId}")
@@ -114,7 +83,7 @@ public class EventController {
 
         event.addToAttendingUsers(loggedUser);
 
-        eventService.updateEvent(event);
+        eventService.saveEvent(event);
 
         return "Success!";
     }
@@ -132,7 +101,7 @@ public class EventController {
         Event event = eventService.findEventById(eventId);
         User user = userService.findByUserName(principal.getName());
         event.cancelGoing(user);
-        eventService.updateEvent(event);
+        eventService.saveEvent(event);
     }
 
     @GetMapping(value = "/page")

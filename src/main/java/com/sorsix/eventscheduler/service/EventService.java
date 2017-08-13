@@ -2,6 +2,7 @@ package com.sorsix.eventscheduler.service;
 
 import com.sorsix.eventscheduler.domain.City;
 import com.sorsix.eventscheduler.domain.Event;
+import com.sorsix.eventscheduler.domain.Picture;
 import com.sorsix.eventscheduler.domain.User;
 import com.sorsix.eventscheduler.domain.dto.EventCreationDto;
 import com.sorsix.eventscheduler.repository.CityRepository;
@@ -11,33 +12,32 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @Service
 public class EventService {
 
     private EventRepository eventRepository;
     private CityRepository cityRepository;
+    private PictureService pictureService;
 
-    public EventService(EventRepository eventRepository, CityRepository cityRepository) {
+    public EventService(EventRepository eventRepository, CityRepository cityRepository, PictureService pictureService) {
         this.eventRepository = eventRepository;
         this.cityRepository = cityRepository;
+        this.pictureService = pictureService;
     }
 
+    public Event saveEvent(Event event){
+        return eventRepository.save(event);
+    }
     public Event findEventById(Long id) {
         return eventRepository.findOne(id);
     }
 
     public List<Event> getAllEvents() {
-        List<Event> events =eventRepository.findAll(orderBy());
-
-
-        return filterEvents(events);
+       return eventRepository.findAllByEndDateAfter(LocalDateTime.now(), orderBy());
     }
 
     public List<Event> getUserEvents(Long Id) {
@@ -73,7 +73,35 @@ public class EventService {
         }
     }
 
-    public Event updateEvent(Event event) {
+    public Event updateEvent(Long Id, String name, String desc, String place, Long cityId) {
+        Event event = findEventById(Id);
+        City city = cityRepository.findOne(cityId);
+
+        event.setName(name);
+        event.setDescription(desc);
+        event.setPlace(place);
+        event.setCity(city);
+
+        return eventRepository.save(event);
+    }
+
+    public Event uploadImage(Long id, byte [] data, String contentType, Long size, String name){
+        Event event = findEventById(id);
+
+        Picture pictureToSave = new Picture();
+        pictureToSave.data = data;
+        pictureToSave.contentType = contentType;
+        pictureToSave.size = size;
+        pictureToSave.fileName = name;
+        pictureService.savePicture(pictureToSave);
+
+        Picture oldPicture = event.getPicture();
+        if(oldPicture != null){
+            event.setPicture(null);
+            pictureService.deletePicture(oldPicture.getId());
+        }
+        event.setPicture(pictureToSave);
+
         return eventRepository.save(event);
     }
 
@@ -87,41 +115,12 @@ public class EventService {
 
     }
 
-    private LocalDateTime convertStringToDate(String date, String startTime, String endTime, int i) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
-        String dates[] = date.split("-");
-        String start[] = startTime.split("T");
-        String end[] = endTime.split("T");
-
-        String dateString;
-
-        if (i == 0) {
-            dateString = dates[0] + " " + start[1].substring(0, 8);
-        } else {
-            dateString = dates[1] + " " + end[1].substring(0, 8);
-        }
-
-        LocalDateTime dateTime = LocalDateTime.parse(dateString, formatter);
-        return dateTime;
-    }
-
     public List<Event> findByCityName(String cityName) {
-        List<Event> events = eventRepository.findAllByCityName(cityName, orderBy());
-        return filterEvents(events);
+        return eventRepository.
+                findAllByEndDateAfterAndCity(LocalDateTime.now(), cityName, orderBy());
     }
 
-    public List<Event> filterEvents(List<Event> events){
-        LocalDateTime dateTime= LocalDateTime.now();
-        List<Event> filterList = new ArrayList<>();
-        for(int i =0;i<events.size(); i++){
-            Event tmp = events.get(i);
-            if(tmp.getEndDate().isAfter(dateTime)){
-                filterList.add(tmp);
-            }
-        }
-        return filterList;
 
-    }
 
     public Page<Event> listAllByPage(Pageable pageable){
         return eventRepository.findAll(pageable);
