@@ -7,8 +7,6 @@ import com.sorsix.eventscheduler.domain.User;
 import com.sorsix.eventscheduler.domain.dto.EventCreationDto;
 import com.sorsix.eventscheduler.repository.CityRepository;
 import com.sorsix.eventscheduler.repository.EventRepository;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -40,12 +38,13 @@ public class EventService {
        return eventRepository.findAllByEndDateAfter(LocalDateTime.now(), orderBy());
     }
 
-    public List<Event> getUserEvents(Long Id) {
-        return eventRepository.findAllByCreatorId(Id, orderBy());
+    public List<Event> findByCityName(String cityName) {
+        return eventRepository.
+                findAllByEndDateAfterAndCity(LocalDateTime.now(), cityName, orderBy());
     }
 
-    private Sort orderBy() {
-        return new Sort(Sort.Direction.ASC, "startDate");
+    public List<Event> getUserEvents(Long Id) {
+        return eventRepository.findAllByCreatorId(Id, orderBy());
     }
 
     public Event createEvent(EventCreationDto dto, User creator) {
@@ -66,7 +65,7 @@ public class EventService {
             event.setEndDate(endTime);
             event.setCreator(creator);
 
-            return eventRepository.save(event);
+            return saveEvent(event);
         }
         catch (Exception e) {
             return null;
@@ -82,7 +81,7 @@ public class EventService {
         event.setPlace(place);
         event.setCity(city);
 
-        return eventRepository.save(event);
+        return saveEvent(event);
     }
 
     public Event uploadImage(Long id, byte [] data, String contentType, Long size, String name){
@@ -102,7 +101,7 @@ public class EventService {
         }
         event.setPicture(pictureToSave);
 
-        return eventRepository.save(event);
+        return saveEvent(event);
     }
 
     public String deleteEvent(Long Id) {
@@ -115,15 +114,7 @@ public class EventService {
 
     }
 
-    public List<Event> findByCityName(String cityName) {
-        return eventRepository.
-                findAllByEndDateAfterAndCity(LocalDateTime.now(), cityName, orderBy());
-    }
-
-
-
-    public Page<Event> listAllByPage(Pageable pageable){
-        return eventRepository.findAll(pageable);
-
+    private Sort orderBy() {
+        return new Sort(Sort.Direction.ASC, "startDate");
     }
 }

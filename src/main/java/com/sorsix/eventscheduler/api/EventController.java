@@ -5,8 +5,6 @@ import com.sorsix.eventscheduler.domain.User;
 import com.sorsix.eventscheduler.domain.dto.EventCreationDto;
 import com.sorsix.eventscheduler.service.EventService;
 import com.sorsix.eventscheduler.service.UserService;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -65,7 +63,7 @@ public class EventController {
     }
 
     @PostMapping(value = "/upload/{id}")
-    public void uploadImage(@RequestParam("image") MultipartFile image,
+    public boolean uploadImage(@RequestParam("image") MultipartFile image,
                             @PathVariable Long id) throws IOException {
 
         byte [] data = image.getBytes();
@@ -73,9 +71,10 @@ public class EventController {
         Long size = image.getSize();
         String fileName = image.getName();
 
-        eventService.uploadImage(id, data, contentType, size, fileName);
+        return eventService.uploadImage(id, data, contentType, size, fileName) != null;
     }
 
+    // To change
     @GetMapping(value = "/going/{eventId}")
     public String goingToEvent(@PathVariable Long eventId, Principal principal) {
         Event event = eventService.findEventById(eventId);
@@ -102,11 +101,6 @@ public class EventController {
         User user = userService.findByUserName(principal.getName());
         event.cancelGoing(user);
         eventService.saveEvent(event);
-    }
-
-    @GetMapping(value = "/page")
-    public Page<Event> listByPage(Pageable pageable){
-        return eventService.listAllByPage(pageable);
     }
 
 }
