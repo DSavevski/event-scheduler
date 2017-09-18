@@ -3,13 +3,13 @@ package com.sorsix.eventscheduler.repository;
 import com.sorsix.eventscheduler.domain.City;
 import com.sorsix.eventscheduler.domain.Event;
 import com.sorsix.eventscheduler.domain.User;
-import com.sorsix.eventscheduler.service.EventService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.junit.Assert;
+
+import java.util.List;
 
 /**
  * Created by Dragan on 7/18/17.
@@ -20,39 +20,19 @@ import org.junit.Assert;
 public class RepositoryTest {
 
     @Autowired
-    private EventRepository eventRepository;
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
     private CityRepository cityRepository;
     @Autowired
-    private EventService eventService;
-
-    @Test
-    public void testCreateUser() {
-        User user = new User("Dsavevski", "admin", "Dragan", "Savevski");
-        User savedUser = userRepository.save(user);
-        Assert.assertNotNull(savedUser);
-    }
-
-    @Test
-    public void deleteEvent() {
-        eventService.deleteEvent(1L);
-    }
+    private EventAttendanceRepository repo;
 
     @Test
     public void updateEvent() {
-        Event event = eventRepository.findOne(2L);
-        event.setName("Saturday night");
-        event.setDescription("Saturday night with DJ Slave");
-        eventService.updateEvent(event);
-    }
+        System.out.println();
 
-    @Test
-    public void testDelete() {
-        Event event = eventRepository.findOne(4L);
-        eventRepository.delete(event.getId());
+        List<Event> eventList = repo.getEventsForUser(1L);
+        System.out.println("=============" + eventList);
 
+        List<User> userList = repo.getUsersForEvent(1L);
+        System.out.println("=============" + userList);
     }
 
     @Test

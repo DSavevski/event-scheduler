@@ -35,12 +35,12 @@ public class EventService {
     }
 
     public List<Event> getAllEvents() {
-       return eventRepository.findAllByEndDateAfter(LocalDateTime.now(), orderBy());
+       return eventRepository.findAll(orderBy());
     }
 
     public List<Event> findByCityName(String cityName) {
         return eventRepository.
-                findAllByEndDateAfterAndCity(LocalDateTime.now(), cityName, orderBy());
+                findAllByCityName(cityName, orderBy());
     }
 
     public List<Event> getUserEvents(Long Id) {

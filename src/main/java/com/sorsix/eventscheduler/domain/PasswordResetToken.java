@@ -1,55 +1,55 @@
 package com.sorsix.eventscheduler.domain;
 
-import javax.persistence.*;
-import java.util.Calendar;
-import java.util.Date;
+import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
+import java.time.LocalDateTime;
 
 @Entity
-public class PasswordResetToken {
+public class PasswordResetToken extends BaseEntity {
 
-    private static final int EXPIRATION = 60 * 24;
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+    private static final long EXPIRATION = 24;
 
     private String token;
 
-    @OneToOne(targetEntity = User.class, fetch = FetchType.EAGER)
-    @JoinColumn(nullable = false, name = "user_id")
+    @OneToOne
+    @JoinColumn(nullable = false)
     private User user;
 
-    private Date expiryDate;
+    private LocalDateTime expiryDate;
 
-    public PasswordResetToken() {
-        super();
+    private LocalDateTime calculateExpiryDate(long expiryTimeInHours) {
+        LocalDateTime now = LocalDateTime.now();
+        return now.plusHours(expiryTimeInHours);
     }
 
-    public PasswordResetToken(final String token) {
-        super();
-
+    public void updateToken(String token) {
         this.token = token;
         this.expiryDate = calculateExpiryDate(EXPIRATION);
     }
 
-    public PasswordResetToken(final String token, final User user) {
-        super();
+    // Constructors
+    public PasswordResetToken() {
+    }
 
+    public PasswordResetToken(String token) {
+        this.token = token;
+        this.expiryDate = calculateExpiryDate(EXPIRATION);
+    }
+
+    public PasswordResetToken(String token, final User user) {
         this.token = token;
         this.user = user;
         this.expiryDate = calculateExpiryDate(EXPIRATION);
     }
 
-    //
-    public Long getId() {
-        return id;
-    }
+    // Getters, Setters
 
     public String getToken() {
         return token;
     }
 
-    public void setToken(final String token) {
+    public void setToken(String token) {
         this.token = token;
     }
 
@@ -57,31 +57,17 @@ public class PasswordResetToken {
         return user;
     }
 
-    public void setUser(final User user) {
+    public void setUser(User user) {
         this.user = user;
     }
 
-    public Date getExpiryDate() {
+    public LocalDateTime getExpiryDate() {
         return expiryDate;
     }
 
-    public void setExpiryDate(final Date expiryDate) {
+    public void setExpiryDate(LocalDateTime expiryDate) {
         this.expiryDate = expiryDate;
     }
-
-    private Date calculateExpiryDate(final int expiryTimeInMinutes) {
-        final Calendar cal = Calendar.getInstance();
-        cal.setTimeInMillis(new Date().getTime());
-        cal.add(Calendar.MINUTE, expiryTimeInMinutes);
-        return new Date(cal.getTime().getTime());
-    }
-
-    public void updateToken(final String token) {
-        this.token = token;
-        this.expiryDate = calculateExpiryDate(EXPIRATION);
-    }
-
-    //
 
     @Override
     public int hashCode() {

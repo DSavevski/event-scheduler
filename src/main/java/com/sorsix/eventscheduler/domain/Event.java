@@ -1,5 +1,7 @@
 package com.sorsix.eventscheduler.domain;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -8,16 +10,16 @@ import java.util.List;
 /**
  * Created by Dragan on 7/18/17.
  */
-@Table
-@Entity(name = "events")
+@Entity
+@Table(name = "events")
 public class Event extends BaseEntity {
 
     private String name;
 
-    @Column(name = "start_date")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime startDate;
 
-    @Column(name = "end_date")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime endDate;
 
     private String place;
@@ -27,9 +29,6 @@ public class Event extends BaseEntity {
     @ManyToOne
     private User creator;
 
-    @ManyToMany
-    private List<User> attendingUsers = new ArrayList<>();
-
     @ManyToOne
     private City city;
 
@@ -37,37 +36,6 @@ public class Event extends BaseEntity {
     private Picture picture;
 
     public Event() {
-    }
-
-    public Event(String name, LocalDateTime startDate, LocalDateTime endDate,
-                 String description, User creator, List<User> attendingUsers, String place) {
-        this.name = name;
-        this.startDate = startDate;
-        this.endDate = endDate;
-        this.description = description;
-        this.creator = creator;
-        this.attendingUsers = attendingUsers;
-        this.place = place;
-    }
-
-    public void copy(Event event) {
-        this.name = event.name;
-        this.startDate = event.startDate;
-        this.endDate = event.endDate;
-        this.description = event.description;
-        this.city = event.city;
-    }
-
-    public void addToAttendingUsers(User user) {
-        attendingUsers.add(user);
-    }
-
-    public boolean chekIfUserGoing(User user) {
-        return attendingUsers.contains(user);
-    }
-
-    public boolean cancelGoing(User user) {
-        return attendingUsers.remove(user);
     }
 
     public String getName() {
@@ -116,14 +84,6 @@ public class Event extends BaseEntity {
 
     public void setCreator(User creator) {
         this.creator = creator;
-    }
-
-    public List<User> getAttendingUsers() {
-        return attendingUsers;
-    }
-
-    public void setAttendingUsers(List<User> attendingUsers) {
-        this.attendingUsers = attendingUsers;
     }
 
     public City getCity() {

@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/event")
+@RequestMapping("/api/events")
 public class EventController {
 
     private EventService eventService;
@@ -25,9 +25,9 @@ public class EventController {
         this.userService = userService;
     }
 
-    @DeleteMapping(value = "/{eventId}")
-    public String deleteEvent(@PathVariable Long eventId) {
-        return eventService.deleteEvent(eventId);
+    @DeleteMapping(value = "/{id}")
+    public String deleteEvent(@PathVariable Long id) {
+        return eventService.deleteEvent(id);
     }
 
     @GetMapping()
@@ -62,7 +62,7 @@ public class EventController {
         else return null;
     }
 
-    @PostMapping(value = "/upload/{id}")
+    @PostMapping(value = "/{id}/upload_image")
     public boolean uploadImage(@RequestParam("image") MultipartFile image,
                             @PathVariable Long id) throws IOException {
 
@@ -75,31 +75,33 @@ public class EventController {
     }
 
     // To change
-    @GetMapping(value = "/going/{eventId}")
-    public String goingToEvent(@PathVariable Long eventId, Principal principal) {
-        Event event = eventService.findEventById(eventId);
+    @GetMapping(value = "/{id}/going")
+    public String goingToEvent(@PathVariable Long id, Principal principal) {
+        Event event = eventService.findEventById(id);
         User loggedUser = userService.findByUserName(principal.getName());
 
-        event.addToAttendingUsers(loggedUser);
+        //event.addToAttendingUsers(loggedUser);
 
         eventService.saveEvent(event);
 
         return "Success!";
     }
 
-    @GetMapping(value = "/check/{eventId}")
+    @GetMapping(value = "/{id}/status")
     public boolean checkIfGoing(@PathVariable Long eventId, Principal principal) {
         Event event = eventService.findEventById(eventId);
         User loggedUser = userService.findByUserName(principal.getName());
 
-        return event.chekIfUserGoing(loggedUser);
+       // return event.chekIfUserGoing(loggedUser);
+
+        return true;
     }
 
-    @DeleteMapping(value = "/cancel/{eventId}")
-    public void cancelGoing(@PathVariable Long eventId, Principal principal) {
-        Event event = eventService.findEventById(eventId);
+    @DeleteMapping(value = "/{id}/cancel")
+    public void cancelGoing(@PathVariable Long id, Principal principal) {
+        Event event = eventService.findEventById(id);
         User user = userService.findByUserName(principal.getName());
-        event.cancelGoing(user);
+        //event.cancelGoing(user);
         eventService.saveEvent(event);
     }
 

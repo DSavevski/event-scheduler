@@ -5,6 +5,7 @@ import com.sorsix.eventscheduler.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 
 import javax.servlet.ServletException;
@@ -16,9 +17,10 @@ public class LoginFailureHandler implements AuthenticationFailureHandler {
 
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private PasswordEncoder encoder;
 
-    public LoginFailureHandler() {
-    }
+    public LoginFailureHandler() { }
 
     @Override
     public void onAuthenticationFailure(HttpServletRequest request,
@@ -28,7 +30,18 @@ public class LoginFailureHandler implements AuthenticationFailureHandler {
                 request.getParameter("username")
         );
 
-        if(user == null) throw new UsernameNotFoundException("Username was not found");
+        if (user == null) throw new UsernameNotFoundException("Username was not found!");
 
+        String password = request.getParameter("password");
+        if (!encoder.matches(password, user.getPassword())) {
+            throw new PasswordIncorrectException("Password incorrect!");
+        }
+
+    }
+}
+
+class PasswordIncorrectException extends AuthenticationException {
+    public PasswordIncorrectException(String msg) {
+        super(msg);
     }
 }

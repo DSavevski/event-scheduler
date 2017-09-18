@@ -1,5 +1,7 @@
 package com.sorsix.eventscheduler.domain;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sorsix.eventscheduler.domain.enums.Provider;
 import com.sorsix.eventscheduler.domain.enums.Role;
 import org.springframework.security.core.GrantedAuthority;
@@ -7,6 +9,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -17,17 +20,15 @@ import java.util.Set;
  */
 @Entity
 @Table(name = "users")
-public class User extends BaseEntity implements UserDetails {
+public class User extends BaseEntity{
 
     @Column(unique = true)
     private String username;
 
     private String password;
 
-    @Column(name = "first_name")
     private String firstName;
 
-    @Column(name = "last_name")
     private String lastName;
 
     private String email;
@@ -43,11 +44,11 @@ public class User extends BaseEntity implements UserDetails {
 
     private boolean enabled;
 
-   /* @ManyToMany
-    @JoinTable(name = "events_attending_users",
-            joinColumns=@JoinColumn(name = "id"), inverseJoinColumns = @JoinColumn(name = "id"))
-    List<Event> events;*/
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
+    private LocalDateTime dateCreated;
 
+
+    // Constructors
     public User() {
         this.enabled = false;
     }
@@ -69,49 +70,37 @@ public class User extends BaseEntity implements UserDetails {
         this.enabled = false;
     }
 
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singleton(new SimpleGrantedAuthority(role.toString()));
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return this.enabled;
-    }
-
+    //Getters, Setters
     public String getUsername() {
         return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getPassword() {
         return password;
     }
 
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
     public String getFirstName() {
         return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
     }
 
     public String getLastName() {
         return lastName;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
     }
 
     public String getEmail() {
@@ -122,24 +111,12 @@ public class User extends BaseEntity implements UserDetails {
         this.email = email;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
+    public Picture getPicture() {
+        return picture;
     }
 
     public void setPicture(Picture picture) {
         this.picture = picture;
-    }
-
-    public Picture getPicture() {
-        return picture;
     }
 
     public Provider getProvider() {
@@ -158,19 +135,26 @@ public class User extends BaseEntity implements UserDetails {
         this.role = role;
     }
 
+    public boolean isEnabled() {
+        return enabled;
+    }
+
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
     }
 
-    public boolean getEnabled(){
-        return this.enabled;
+    public LocalDateTime getDateCreated() {
+        return dateCreated;
+    }
+
+    public void setDateCreated(LocalDateTime dateCreated) {
+        this.dateCreated = dateCreated;
     }
 
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("User{");
         sb.append("username='").append(username).append('\'');
-        sb.append(", password='").append(password).append('\'');
         sb.append(", firstName='").append(firstName).append('\'');
         sb.append(", lastName='").append(lastName).append('\'');
         sb.append(", picture=").append(picture);

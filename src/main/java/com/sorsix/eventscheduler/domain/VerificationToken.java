@@ -1,55 +1,57 @@
 package com.sorsix.eventscheduler.domain;
 
+import java.time.LocalDateTime;
 import java.util.Calendar;
 import java.util.Date;
 
 import javax.persistence.*;
 
 @Entity
-public class VerificationToken {
+@Table
+public class VerificationToken extends BaseEntity {
 
-    private static final int EXPIRATION = 60 * 24;
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+    private static final long EXPIRATION = 24;
 
     private String token;
 
-    @OneToOne(targetEntity = User.class, fetch = FetchType.EAGER)
-    @JoinColumn(nullable = false, name = "user_id", foreignKey = @ForeignKey(name = "FK_VERIFY_USER"))
+    @OneToOne
+    @JoinColumn(nullable = false)
     private User user;
 
-    private Date expiryDate;
+    private LocalDateTime expiryDate;
 
+    // Methods
+    private LocalDateTime calculateExpiryDate(long expiryTimeInHours) {
+        LocalDateTime now = LocalDateTime.now();
+        return now.plusHours(expiryTimeInHours);
+    }
+
+    public void updateToken(String token) {
+        this.token = token;
+        this.expiryDate = calculateExpiryDate(EXPIRATION);
+    }
+
+    //Constructors
     public VerificationToken() {
-        super();
     }
 
     public VerificationToken(final String token) {
-        super();
-
         this.token = token;
         this.expiryDate = calculateExpiryDate(EXPIRATION);
     }
 
     public VerificationToken(final String token, final User user) {
-        super();
-
         this.token = token;
         this.user = user;
         this.expiryDate = calculateExpiryDate(EXPIRATION);
     }
 
-    public Long getId() {
-        return id;
-    }
-
+    //Getters, Setters
     public String getToken() {
         return token;
     }
 
-    public void setToken(final String token) {
+    public void setToken(String token) {
         this.token = token;
     }
 
@@ -57,28 +59,16 @@ public class VerificationToken {
         return user;
     }
 
-    public void setUser(final User user) {
+    public void setUser(User user) {
         this.user = user;
     }
 
-    public Date getExpiryDate() {
+    public LocalDateTime getExpiryDate() {
         return expiryDate;
     }
 
-    public void setExpiryDate(final Date expiryDate) {
+    public void setExpiryDate(LocalDateTime expiryDate) {
         this.expiryDate = expiryDate;
-    }
-
-    private Date calculateExpiryDate(final int expiryTimeInMinutes) {
-        final Calendar cal = Calendar.getInstance();
-        cal.setTimeInMillis(new Date().getTime());
-        cal.add(Calendar.MINUTE, expiryTimeInMinutes);
-        return new Date(cal.getTime().getTime());
-    }
-
-    public void updateToken(final String token) {
-        this.token = token;
-        this.expiryDate = calculateExpiryDate(EXPIRATION);
     }
 
     //

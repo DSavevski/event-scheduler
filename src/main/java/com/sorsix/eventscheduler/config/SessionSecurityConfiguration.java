@@ -2,7 +2,6 @@ package com.sorsix.eventscheduler.config;
 
 import com.sorsix.eventscheduler.domain.enums.Provider;
 import com.sorsix.eventscheduler.domain.enums.Role;
-import com.sorsix.eventscheduler.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +17,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.OAuth2ClientContext;
 import org.springframework.security.oauth2.client.OAuth2RestTemplate;
@@ -26,15 +25,12 @@ import org.springframework.security.oauth2.client.filter.OAuth2ClientAuthenticat
 import org.springframework.security.oauth2.client.filter.OAuth2ClientContextFilter;
 import org.springframework.security.oauth2.client.token.grant.code.AuthorizationCodeResourceDetails;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableOAuth2Client;
-import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
-
-import javax.servlet.Filter;
-
 import org.springframework.web.filter.CompositeFilter;
 
+import javax.servlet.Filter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,9 +46,9 @@ public class SessionSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     private static final Logger logger = LoggerFactory.getLogger(SessionSecurityConfiguration.class);
 
-    private final UserService userService;
+    private final UserDetailsService userService;
 
-    private final AuthenticationEntryPoint authenticationEntryPoint;
+    //private final AuthenticationEntryPoint authenticationEntryPoint;
 
     //private final AuthenticationSuccessHandler successHandler;
 
@@ -67,20 +63,20 @@ public class SessionSecurityConfiguration extends WebSecurityConfigurerAdapter {
     //private final ApplicationEventPublisher eventPublisher;
 
     @Autowired
-    public SessionSecurityConfiguration(UserService userService,
-                                        AuthenticationEntryPoint authenticationEntryPoint,
+    public SessionSecurityConfiguration(UserDetailsService userService,
                                         LogoutSuccessHandler logoutSuccessHandler,
                                         PasswordEncoder passwordEncoder,
                                         OAuth2ClientContext oauth2ClientContext) {
+
         logger.debug("Configuring Spring Session Security Configuration");
         this.oauth2ClientContext = oauth2ClientContext;
-        //this.eventPublisher = eventPublisher;
         this.userService = userService;
-        this.authenticationEntryPoint = authenticationEntryPoint;
-        //this.successHandler = successHandler;
-        //this.failureHandler = failureHandler;
         this.logoutSuccessHandler = logoutSuccessHandler;
         this.passwordEncoder = passwordEncoder;
+        //this.authenticationEntryPoint = authenticationEntryPoint;
+        //this.successHandler = successHandler;
+        //this.failureHandler = failureHandler;
+        //this.eventPublisher = eventPublisher;
     }
 
     @Override
@@ -102,7 +98,7 @@ public class SessionSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .permitAll();
 
         http.formLogin()
-                .loginProcessingUrl("/api/public/login")
+                .loginProcessingUrl("/api/public/users/login")
                 .successHandler(localSuccessHandler())
                 .failureHandler(loginFailureHandler())
                 .usernameParameter("username")
@@ -110,7 +106,7 @@ public class SessionSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .permitAll()
                 .and()
                 .logout()
-                .logoutUrl("/api/logout")
+                .logoutUrl("/api/user/logout")
                 .logoutSuccessHandler(logoutSuccessHandler)
                 .deleteCookies("JSESSIONID")
                 .permitAll()

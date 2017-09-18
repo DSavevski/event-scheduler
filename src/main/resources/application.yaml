@@ -2,15 +2,17 @@ spring:
   application:
     name: event-scheduler
   datasource:
-    url: jdbc:postgresql://localhost:5432/event-scheduler
+    url: jdbc:postgresql://localhost:5432/test
     username: postgres
     password: admin
     driver-class-name: org.postgresql.Driver
-# Hibernate JPA configuration
   jpa:
     hibernate:
       ddl-auto: update
       dialect: org.hibernate.dialect.PostgreSQL9Dialect
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
 
 github:
   client:
@@ -33,6 +35,4 @@ facebook:
     clientAuthenticationScheme: form
   resource:
     userInfoUri: https://graph.facebook.com/me
-
-
 

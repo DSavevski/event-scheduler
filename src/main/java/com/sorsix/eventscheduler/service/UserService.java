@@ -1,75 +1,53 @@
 package com.sorsix.eventscheduler.service;
 
 import com.sorsix.eventscheduler.domain.PasswordResetToken;
+import com.sorsix.eventscheduler.domain.Picture;
 import com.sorsix.eventscheduler.domain.User;
 import com.sorsix.eventscheduler.domain.VerificationToken;
 import com.sorsix.eventscheduler.domain.dto.ResetForgottenPasswordDto;
 import com.sorsix.eventscheduler.domain.enums.Provider;
 import com.sorsix.eventscheduler.domain.enums.Role;
 import com.sorsix.eventscheduler.repository.PasswordTokenRepository;
-import com.sorsix.eventscheduler.repository.RegistrationTokenRepository;
+import com.sorsix.eventscheduler.repository.VerificationTokenRepository;
 import com.sorsix.eventscheduler.repository.UserRepository;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.security.Principal;
+import java.time.LocalDateTime;
 import java.util.Calendar;
 import java.util.UUID;
 
 
 @Service
-public class UserService implements UserDetailsService {
+public class UserService {
 
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
     private UserRepository userRepository;
     private BCryptPasswordEncoder bCryptPasswordEncoder;
-    private RegistrationTokenRepository registrationTokenRepository;
+    private VerificationTokenRepository verificationTokenRepository;
     private PasswordTokenRepository passwordTokenRepository;
+    private PictureService pictureService;
     private JavaMailSender mailSender;
 
-    public UserService(UserRepository userRepository, BCryptPasswordEncoder bCryptPasswordEncoder, RegistrationTokenRepository registrationTokenRepository, PasswordTokenRepository passwordTokenRepository, JavaMailSender mailSender) {
+    public UserService(UserRepository userRepository, BCryptPasswordEncoder bCryptPasswordEncoder, VerificationTokenRepository verificationTokenRepository, PasswordTokenRepository passwordTokenRepository, PictureService pictureService, JavaMailSender mailSender) {
         this.userRepository = userRepository;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
-        this.registrationTokenRepository = registrationTokenRepository;
+        this.verificationTokenRepository = verificationTokenRepository;
         this.passwordTokenRepository = passwordTokenRepository;
+        this.pictureService = pictureService;
         this.mailSender = mailSender;
     }
 
+
     public User findUserById(Long id) {
         return userRepository.findOne(id);
-    }
-
-    public User createUser(User user) {
-        logger.info("Saving user [{}]", user);
-        try {
-            user.setRole(Role.USER);
-            user.setProvider(Provider.LOCAL);
-            user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
-            logger.info("Encrypted password [{}]", user.getPassword());
-            return userRepository.save(user);
-        } catch (DataIntegrityViolationException ex) {
-            logger.warn("Duplicate username [{}]", user.getUsername());
-            return null;
-        }
-
-    }
-
-    public User getUserWithPrincipal(Principal principal) {
-
-        if (principal != null) return userRepository.findByUsername(principal.getName());
-        else return null;
-    }
-
-    public boolean checkForDuplicateUsername(String username) {
-        return userRepository.findByUsername(username) != null;
     }
 
     public User findByUserName(String username) {
@@ -89,8 +67,54 @@ public class UserService implements UserDetailsService {
         return userWithUsername;
     }
 
+    public User getUserWithPrincipal(Principal principal) {
+
+        if (principal != null) return userRepository.findByUsername(principal.getName());
+        else return null;
+    }
+
+    public boolean checkForDuplicateUsername(String username) {
+        return userRepository.findByUsername(username) != null;
+    }
+
     public User updateUser(User user) {
         return userRepository.save(user);
+    }
+
+
+    public User createUser(User user) {
+        logger.info("Saving user [{}]", user);
+        try {
+            user.setRole(Role.USER);
+            user.setProvider(Provider.LOCAL);
+            user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+            return userRepository.save(user);
+        } catch (DataIntegrityViolationException ex) {
+            logger.warn("Duplicate username [{}]", user.getUsername());
+            return null;
+        }
+
+    }
+
+    public User uploadImage(Long id, byte[] data, String contentType, Long size, String name) {
+
+        User user = findUserById(id);
+
+        Picture pictureToSave = new Picture();
+        pictureToSave.data = data;
+        pictureToSave.contentType = contentType;
+        pictureToSave.size = size;
+        pictureToSave.fileName = name;
+        pictureService.savePicture(pictureToSave);
+
+        Picture oldPicture = user.getPicture();
+        if (oldPicture != null) {
+            user.setPicture(null);
+            pictureService.deletePicture(oldPicture.getId());
+        }
+
+        user.setPicture(pictureToSave);
+        return updateUser(user);
     }
 
     public boolean resetPassword(String oldPassword, String newPassword,
@@ -109,14 +133,13 @@ public class UserService implements UserDetailsService {
     public boolean resetForgottenPassword(ResetForgottenPasswordDto dto) {
 
         PasswordResetToken passwordResetToken = getPasswordResetToken(dto.getToken());
-        Calendar cal = Calendar.getInstance();
+        LocalDateTime now = LocalDateTime.now();
+
         if (passwordResetToken == null) {
             return false;
-        }
-        else if (passwordResetToken.getExpiryDate().getTime() - cal.getTime().getTime() <= 0) {
+        } else if (passwordResetToken.getExpiryDate().isBefore(now)) {
             return false;
-        }
-        else {
+        } else {
             User user = passwordResetToken.getUser();
             String encrypted = bCryptPasswordEncoder.encode(dto.getPassword());
             user.setPassword(encrypted);
@@ -137,25 +160,13 @@ public class UserService implements UserDetailsService {
         return true;
     }
 
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        logger.debug("Load user by username [{}]", username);
-        User user = userRepository.findByUsername(username);
-
-        if (user != null) {
-            return user;
-        } else {
-            throw new UsernameNotFoundException(String.format("Username [%s] not found", username));
-        }
-    }
-
     public void createVerificationToken(User user, String token) {
         VerificationToken myToken = new VerificationToken(token, user);
-        registrationTokenRepository.save(myToken);
+        verificationTokenRepository.save(myToken);
     }
 
     public VerificationToken getVerificationToken(String token) {
-        return registrationTokenRepository.findByToken(token);
+        return verificationTokenRepository.findByToken(token);
     }
 
     public String confirmRegistration(String token) {
@@ -167,8 +178,8 @@ public class UserService implements UserDetailsService {
         }
 
         User user = verificationToken.getUser();
-        Calendar cal = Calendar.getInstance();
-        if ((verificationToken.getExpiryDate().getTime() - cal.getTime().getTime()) <= 0) {
+        LocalDateTime now = LocalDateTime.now();
+        if ((verificationToken.getExpiryDate().isBefore(now))) {
             return "Token expired";
         }
 
