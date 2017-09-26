@@ -35,7 +35,10 @@ public class Event extends BaseEntity {
     @OneToOne
     private Picture picture;
 
+    private LocalDateTime dateCreated;
+
     public Event() {
+        this.dateCreated = LocalDateTime.now();
     }
 
     public String getName() {
@@ -100,6 +103,14 @@ public class Event extends BaseEntity {
 
     public void setPicture(Picture picture) {
         this.picture = picture;
+    }
+
+    public LocalDateTime getDateCreated() {
+        return dateCreated;
+    }
+
+    public void setDateCreated(LocalDateTime dateCreated) {
+        this.dateCreated = dateCreated;
     }
 
     @Override

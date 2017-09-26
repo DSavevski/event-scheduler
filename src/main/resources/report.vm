@@ -1,0 +1,12 @@
+<html>
+<body>
+<h3>Hi ${user.username}, welcome to the Event-scheduler application newsletter!</h3>
+
+<div>
+    You said you are going to ${totalGoings} events!
+    #foreach($name in $eventNames)
+        <p>$name</p>
+    #end
+</div>
+</body>
+</html>

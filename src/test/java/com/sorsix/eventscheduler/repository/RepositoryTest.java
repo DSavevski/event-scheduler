@@ -2,6 +2,7 @@ package com.sorsix.eventscheduler.repository;
 
 import com.sorsix.eventscheduler.domain.City;
 import com.sorsix.eventscheduler.domain.Event;
+import com.sorsix.eventscheduler.domain.EventAttendance;
 import com.sorsix.eventscheduler.domain.User;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -22,19 +24,18 @@ public class RepositoryTest {
     @Autowired
     private CityRepository cityRepository;
     @Autowired
-    private EventAttendanceRepository repo;
+    private EventAttendanceRepository attendanceRepository;
+    @Autowired
+    private EventRepository eventRepository;
+    @Autowired
+    private UserRepository userRepository;
 
     @Test
-    public void updateEvent() {
+    public void testDateAfter() {
+        List<User> usersInLast7Days = userRepository.findAllByDateCreatedBetween(LocalDateTime.now(), LocalDateTime.now().plusDays(1L));
         System.out.println();
-
-        List<Event> eventList = repo.getEventsForUser(1L);
-        System.out.println("=============" + eventList);
-
-        List<User> userList = repo.getUsersForEvent(1L);
-        System.out.println("=============" + userList);
+        System.out.println(usersInLast7Days);
     }
-
     @Test
     public void createCities() {
         City city1 = new City("Skopje", null);

@@ -23,8 +23,6 @@ public class TokensPurgeTask {
 
     @Scheduled(cron = "0 * 12 * * ?")
     public void purgeExpired() {
-
-        System.out.println("TASK ACTIVATED!!!!!!!!!");
         LocalDateTime now = LocalDateTime.now();
 
         passwordTokenRepository.deleteAllExpiredSince(now);

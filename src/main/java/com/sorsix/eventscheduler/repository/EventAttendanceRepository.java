@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface EventAttendanceRepository extends JpaRepository<EventAttendance, Long>{
@@ -16,5 +17,9 @@ public interface EventAttendanceRepository extends JpaRepository<EventAttendance
 
     @Query(value = "select ea.user from EventAttendance ea where ea.event.id =:eventId")
     List<User> getUsersForEvent(@Param("eventId") Long eventId);
+
+    EventAttendance findByUserIdAndEventId(Long userId, Long eventId);
+
+    List<EventAttendance> findAllByUserIdAndDateBetween(Long userId, LocalDateTime start, LocalDateTime end);
 
 }

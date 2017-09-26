@@ -15,6 +15,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.Map;
 
 public class LoginSuccessHandler extends SavedRequestAwareAuthenticationSuccessHandler {
@@ -47,6 +48,7 @@ public class LoginSuccessHandler extends SavedRequestAwareAuthenticationSuccessH
             user.setProvider(this.provider);
             user.setRole(this.role);
             user.setEnabled(true);
+            user.setDateCreated(LocalDateTime.now());
 
             if (map.get("name") != null) {
                 String[] parts = map.get("name").split(" ");

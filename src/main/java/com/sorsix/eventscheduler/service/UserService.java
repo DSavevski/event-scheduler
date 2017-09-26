@@ -86,6 +86,7 @@ public class UserService {
         logger.info("Saving user [{}]", user);
         try {
             user.setRole(Role.USER);
+            user.setDateCreated(LocalDateTime.now());
             user.setProvider(Provider.LOCAL);
             user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
             return userRepository.save(user);

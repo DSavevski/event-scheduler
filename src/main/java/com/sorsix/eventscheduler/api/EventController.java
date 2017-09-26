@@ -1,8 +1,10 @@
 package com.sorsix.eventscheduler.api;
 
 import com.sorsix.eventscheduler.domain.Event;
+import com.sorsix.eventscheduler.domain.EventAttendance;
 import com.sorsix.eventscheduler.domain.User;
 import com.sorsix.eventscheduler.domain.dto.EventCreationDto;
+import com.sorsix.eventscheduler.service.EventAttendanceService;
 import com.sorsix.eventscheduler.service.EventService;
 import com.sorsix.eventscheduler.service.UserService;
 import org.springframework.web.bind.annotation.*;
@@ -10,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.security.Principal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -19,10 +22,12 @@ public class EventController {
 
     private EventService eventService;
     private UserService userService;
+    private EventAttendanceService attendanceService;
 
-    public EventController(EventService eventService, UserService userService) {
+    public EventController(EventService eventService, UserService userService, EventAttendanceService attendanceService) {
         this.eventService = eventService;
         this.userService = userService;
+        this.attendanceService = attendanceService;
     }
 
     @DeleteMapping(value = "/{id}")
@@ -37,19 +42,19 @@ public class EventController {
     }
 
     @GetMapping(value = "/{id}")
-    public Event getEvent(@PathVariable Long id){
+    public Event getEvent(@PathVariable Long id) {
         return eventService.findEventById(id);
     }
 
     @PutMapping()
-    public boolean updateEvent(@RequestBody Map<String, String> newEventData){
+    public boolean updateEvent(@RequestBody Map<String, String> newEventData) {
         Long Id = Long.parseLong(newEventData.get("id"));
         String name = newEventData.get("name");
         String desc = newEventData.get("description");
         String place = newEventData.get("place");
         Long cityId = Long.parseLong(newEventData.get("cityId"));
 
-        Event event = eventService.updateEvent(Id,name,desc,place,cityId);
+        Event event = eventService.updateEvent(Id, name, desc, place, cityId);
         return event != null;
     }
 
@@ -64,9 +69,9 @@ public class EventController {
 
     @PostMapping(value = "/{id}/upload_image")
     public boolean uploadImage(@RequestParam("image") MultipartFile image,
-                            @PathVariable Long id) throws IOException {
+                               @PathVariable Long id) throws IOException {
 
-        byte [] data = image.getBytes();
+        byte[] data = image.getBytes();
         String contentType = image.getContentType();
         Long size = image.getSize();
         String fileName = image.getName();
@@ -80,29 +85,25 @@ public class EventController {
         Event event = eventService.findEventById(id);
         User loggedUser = userService.findByUserName(principal.getName());
 
-        //event.addToAttendingUsers(loggedUser);
+        EventAttendance attendance = new EventAttendance();
+        attendance.setEvent(event);
+        attendance.setUser(loggedUser);
+        attendance.setDate(LocalDateTime.now());
 
-        eventService.saveEvent(event);
-
+        attendanceService.save(attendance);
         return "Success!";
     }
 
-    @GetMapping(value = "/{id}/status")
-    public boolean checkIfGoing(@PathVariable Long eventId, Principal principal) {
-        Event event = eventService.findEventById(eventId);
-        User loggedUser = userService.findByUserName(principal.getName());
-
-       // return event.chekIfUserGoing(loggedUser);
-
-        return true;
-    }
-
     @DeleteMapping(value = "/{id}/cancel")
-    public void cancelGoing(@PathVariable Long id, Principal principal) {
-        Event event = eventService.findEventById(id);
+    public void cancelGoing(@PathVariable("id") Long eventId, Principal principal) {
         User user = userService.findByUserName(principal.getName());
-        //event.cancelGoing(user);
-        eventService.saveEvent(event);
+        EventAttendance attendance = attendanceService.findByUserIdAndEventId(user.getId(), eventId);
+        attendanceService.delete(attendance);
     }
 
+    @GetMapping(value = "/user")
+    public List<Event> getEventsWhereUserGoing(Principal principal) {
+        User loggedUser = userService.getUserWithPrincipal(principal);
+        return attendanceService.getEventsForUser(loggedUser.getId());
+    }
 }

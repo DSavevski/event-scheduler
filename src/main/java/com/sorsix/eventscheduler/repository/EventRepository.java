@@ -16,12 +16,9 @@ public interface EventRepository extends JpaRepository<Event, Long> {
 
     List<Event> findAll(Sort sort);
 
-    Event findByName(String name);
-
     List<Event> findAllByCityName(String cityName, Sort sort);
 
     List<Event> findAllByCreatorId(Long Id, Sort sort);
 
-
-
+    List<Event> findAllByDateCreatedBetween(LocalDateTime start, LocalDateTime end);
 }

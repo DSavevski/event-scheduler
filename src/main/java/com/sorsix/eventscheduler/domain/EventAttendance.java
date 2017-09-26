@@ -44,6 +44,14 @@ public class EventAttendance extends BaseEntity implements Serializable{
         this.event = event;
     }
 
+    public LocalDateTime getDate() {
+        return date;
+    }
+
+    public void setDate(LocalDateTime date) {
+        this.date = date;
+    }
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("EventAttendance{");
