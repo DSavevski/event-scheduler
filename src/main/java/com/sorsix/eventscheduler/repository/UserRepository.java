@@ -21,4 +21,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     List<User> findAll();
 
     List<User> findAllByDateCreatedBetween(LocalDateTime start, LocalDateTime end);
+
+    List<User> findAllByDateCreatedAfter(LocalDateTime date);
 }

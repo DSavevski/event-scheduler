@@ -21,7 +21,7 @@ public class TokensPurgeTask {
     @Autowired
     PasswordTokenRepository passwordTokenRepository;
 
-    @Scheduled(cron = "0 * 12 * * ?")
+    @Scheduled(cron = "0 * 0 * * ?")
     public void purgeExpired() {
         LocalDateTime now = LocalDateTime.now();
 

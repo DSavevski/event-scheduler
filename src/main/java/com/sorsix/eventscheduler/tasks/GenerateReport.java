@@ -43,11 +43,11 @@ public class GenerateReport {
 
     }
 
-    @Scheduled(cron = "0 * 23 * * ?")
+    @Scheduled(cron = "0 * 19 * * ?")
     public void generateUserReport(){
         System.out.println("In task!cl");
-        //List<User> usersInLast7Days = userRepository.findAllByDateCreatedBetween(LocalDateTime.now().minusDays(7), LocalDateTime.now());
-        List<User> usersInLast7Days = userRepository.findAll();
+        List<User> usersInLast7Days = userRepository.findAllByDateCreatedBetween(LocalDateTime.now().minusDays(14L), LocalDateTime.now());
+        //List<User> usersInLast7Days = userRepository.findAll();
 
         usersInLast7Days.forEach(user -> {
 

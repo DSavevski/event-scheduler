@@ -32,7 +32,7 @@ public class RepositoryTest {
 
     @Test
     public void testDateAfter() {
-        List<User> usersInLast7Days = userRepository.findAllByDateCreatedBetween(LocalDateTime.now(), LocalDateTime.now().plusDays(1L));
+        List<User> usersInLast7Days = userRepository.findAllByDateCreatedBetween(LocalDateTime.now().minusDays(14L), LocalDateTime.now());
         System.out.println();
         System.out.println(usersInLast7Days);
     }
